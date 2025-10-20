@@ -1,0 +1,16 @@
+package cl.levelup.mobile.model.local
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "Pedidos")
+data class PedidoEntidad(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val usuarioId: Int,
+    val montoTotal: Int,
+    val montoDescuento: Int = 0,
+    val montoFinal: Int,
+    val estado: String = "pending", // pending, completed, cancelled
+    val fechaCreacion: Long = System.currentTimeMillis(),
+    val itemsJson: String = "" // JSON de los ítems del pedido
+)
