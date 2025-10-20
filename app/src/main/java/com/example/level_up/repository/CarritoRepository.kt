@@ -10,19 +10,19 @@ class CarritoRepository(private val dao: CarritoDao) {
 
     suspend fun obtenerItemPorProductoId(producId: Int) = dao.obtenerItemPorProductoId(producId)
 
-    suspend fun obtenerConteoItems(): Int = dao.obtenerCantidadItems() // Función traducida
+    suspend fun obtenerConteoItems(): Int = dao.obtenerCantidadItems()
 
-    suspend fun obtenerTotalCarrito(): Int = dao.obtenerTotalCarrito() ?: 0 // Función traducida
+    suspend fun obtenerTotalCarrito(): Int = dao.obtenerTotalCarrito() ?: 0 
 
-    suspend fun insertarOActualizar(item: CarritoEntidad) = dao.insertar(item) // Función traducida (reemplaza 'upsert')
+    suspend fun insertarOActualizar(item: CarritoEntidad) = dao.insertar(item) 
 
-    suspend fun actualizarItemCarrito(item: CarritoEntidad) = dao.actualizar(item) // Función traducida
+    suspend fun actualizarItemCarrito(item: CarritoEntidad) = dao.actualizar(item) 
 
-    suspend fun eliminarItemCarrito(item: CarritoEntidad) = dao.eliminar(item) // Función traducida
+    suspend fun eliminarItemCarrito(item: CarritoEntidad) = dao.eliminar(item)
 
-    suspend fun eliminarProductoDelCarrito(productId: Int) = dao.eliminarPorProductoId(productId) // Función traducida
+    suspend fun eliminarProductoDelCarrito(productId: Int) = dao.eliminarPorProductoId(productId) 
 
-    suspend fun limpiar() = dao.eliminarTodos() // Función traducida
+    suspend fun limpiar() = dao.eliminarTodos()
 
     suspend fun actualizarCantidad(productId: Int, quantity: Int) = dao.actualizarCantidad(productId, quantity)
 
