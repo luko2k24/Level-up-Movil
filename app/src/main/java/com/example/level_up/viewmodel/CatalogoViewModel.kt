@@ -1,5 +1,6 @@
 package cl.levelup.mobile.viewmodel
 
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +12,6 @@ import com.example.level_up.local.BaseDeDatosApp
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.String
-
 data class CatalogState(
     val searchQuery: String = "",
     val selectedCategory: String = "Todas",
