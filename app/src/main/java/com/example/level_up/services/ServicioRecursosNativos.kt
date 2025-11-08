@@ -1,4 +1,4 @@
-package com.example.level_up.services // <-- CORRECCIÓN DEL PAQUETE
+package com.example.level_up.services
 
 import android.Manifest
 import android.content.Context
@@ -8,7 +8,7 @@ import android.location.LocationManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
+// --- SE ELIMINA LA IMPORTACIÓN DE @RequiresPermission ---
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -35,7 +35,9 @@ class ServicioRecursosNativos(private val contexto: Context) {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    // --- ¡CORRECCIÓN! ---
+    // Se elimina la anotación "@RequiresPermission(...)" de aquí abajo,
+    // porque la función YA comprueba el permiso internamente.
     fun obtenerUbicacionActual(enResultado: (String) -> Unit) {
         if (!tienePermisoUbicacion()) {
             enResultado("Permiso de ubicación denegado.")
@@ -62,6 +64,7 @@ class ServicioRecursosNativos(private val contexto: Context) {
                 }
             }
         } catch (e: SecurityException) {
+            // Este try/catch es la segunda forma de manejar el error de seguridad
             enResultado("Error de seguridad de ubicación.")
         }
     }
@@ -70,9 +73,6 @@ class ServicioRecursosNativos(private val contexto: Context) {
         return "Lat: ${String.format("%.4f", ubicacion.latitude)}, " +
                 "Lng: ${String.format("%.4f", ubicacion.longitude)}"
     }
-
-    // (Las funciones de cámara de tu archivo original no las usaremos
-    // por ahora, ya que solo necesitamos pedir el permiso)
 }
 
 // Composable "remember" para usar el servicio fácilmente

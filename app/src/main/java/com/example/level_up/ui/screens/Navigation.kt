@@ -20,7 +20,7 @@ fun LevelUpNavHost(navController: NavHostController = rememberNavController()) {
         composable(Routes.HOME) { HomeScreen(navController) }
         composable(Routes.CATALOG) { CatalogScreen(navController) }
         composable(Routes.CART) { CartScreen(navController) }
-        composable(Routes.PROFILE) { ProfileScreen(navController) }
+        composable(Routes.PROFILE) { PantallaPerfil(navController) }
         composable(Routes.AUTH) { AuthScreen(navController) }
     }
 }

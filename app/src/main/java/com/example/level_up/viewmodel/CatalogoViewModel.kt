@@ -1,6 +1,6 @@
-package cl.levelup.mobile.viewmodel
+package com.example.level_up.viewmodel // <-- ¡¡ESTA LÍNEA ESTÁ CORREGIDA!!
 
-
+// (El resto de las importaciones están bien)
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,41 +12,45 @@ import com.example.level_up.local.BaseDeDatosApp
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.String
-data class CatalogState(
-    val searchQuery: String = "",
-    val selectedCategory: String = "Todas",
-    val isLoading: Boolean = false,
+
+// --- Estado del Catálogo (traducido) ---
+data class EstadoCatalogo(
+    val textoBusqueda: String = "",
+    val categoriaSeleccionada: String = "Todas",
+    val estaCargando: Boolean = false,
     val error: String? = null
 )
 
-class CatalogViewModel(app: Application) : AndroidViewModel(app) {
+// --- ViewModel (traducido) ---
+class CatalogoViewModel(app: Application) : AndroidViewModel(app) {
     private val db = BaseDeDatosApp.obtener(app)
-    private val repo = ProductoRepository(db.ProductoDao())
-    private val cartRepo = CarritoRepository(db.CarritoDao())
+    private val repoProducto = ProductoRepository(db.ProductoDao())
+    private val repoCarrito = CarritoRepository(db.CarritoDao())
 
-    private val _state = MutableStateFlow(CatalogState())
-    val state: StateFlow<CatalogState> = _state.asStateFlow()
+    private val _estado = MutableStateFlow(EstadoCatalogo())
+    val estado: StateFlow<EstadoCatalogo> = _estado.asStateFlow()
 
-    val categories = repo.obtenerCategorias().stateIn(
-        viewModelScope, 
-        SharingStarted.Eagerly, 
+    // --- Flujos de datos (traducidos) ---
+    val categorias = repoProducto.obtenerCategorias().stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
         emptyList()
     )
 
-    val products = combine(
-            repo.observarTodos(),
-        _state
-    ) { products, state ->
-        products.filter { product ->
-            val matchesCategory = state.selectedCategory == "Todas" || product.categoria == state.selectedCategory
-            val matchesSearch = state.searchQuery.isBlank() || 
-                product.nombre.contains(state.searchQuery, ignoreCase = true) ||
-                product.descripcion.contains(state.searchQuery, ignoreCase = true)
-            matchesCategory && matchesSearch
+    val productos = combine(
+        repoProducto.observarTodos(),
+        _estado
+    ) { productos, estado ->
+        productos.filter { producto ->
+            val coincideCategoria = estado.categoriaSeleccionada == "Todas" || producto.categoria == estado.categoriaSeleccionada
+            val coincideBusqueda = estado.textoBusqueda.isBlank() ||
+                    producto.nombre.contains(estado.textoBusqueda, ignoreCase = true) ||
+                    producto.descripcion.contains(estado.textoBusqueda, ignoreCase = true)
+            coincideCategoria && coincideBusqueda
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val featuredProducts = repo.obtenerDestacados().stateIn(
+    val productosDestacados = repoProducto.obtenerDestacados().stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
         emptyList()
@@ -54,14 +58,17 @@ class CatalogViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         viewModelScope.launch {
-            if (repo.contar() == 0) {
-                initializeProducts()
+            // Si la base de datos está vacía, la poblamos
+            if (repoProducto.contar() == 0) {
+                inicializarProductos()
             }
         }
     }
 
-    private suspend fun initializeProducts() {
-        val sampleProducts = listOf(
+    // --- Funciones (traducidas) ---
+    private suspend fun inicializarProductos() {
+        // (El resto del archivo no cambia y está correcto)
+        val productosDeEjemplo = listOf(
             ProductoEntidad(
                 codigo = "JM001",
                 categoria = "Juegos de Mesa",
@@ -163,40 +170,43 @@ class CatalogViewModel(app: Application) : AndroidViewModel(app) {
                 destacado = false
             )
         )
-        repo.insertarTodos(*sampleProducts.toTypedArray())
+        repoProducto.insertarTodos(*productosDeEjemplo.toTypedArray())
     }
 
-    fun updateSearchQuery(query: String) {
-        _state.value = _state.value.copy(searchQuery = query)
+    fun actualizarBusqueda(texto: String) {
+        _estado.value = _estado.value.copy(textoBusqueda = texto)
     }
 
-    fun updateSelectedCategory(category: String) {
-        _state.value = _state.value.copy(selectedCategory = category)
+    fun actualizarCategoria(categoria: String) {
+        _estado.value = _estado.value.copy(categoriaSeleccionada = categoria)
     }
 
-    fun addToCart(product: ProductoEntidad) {
+    fun agregarAlCarrito(producto: ProductoEntidad) {
         viewModelScope.launch {
             try {
-                val existingItem = cartRepo.obtenerItemPorProductoId(product.id)
-                if (existingItem != null) {
-                    cartRepo.actualizarCantidad(product.id, existingItem.cantidad + 1)
+                val itemExistente = repoCarrito.obtenerItemPorProductoId(producto.id)
+                if (itemExistente != null) {
+                    // Si ya existe, solo suma 1 a la cantidad
+                    repoCarrito.actualizarCantidad(producto.id, itemExistente.cantidad + 1)
                 } else {
-                    cartRepo.insertarOActualizar(
+                    // Si no existe, crea un nuevo item
+                    repoCarrito.insertarOActualizar(
                         CarritoEntidad(
-                            productoId = product.id,
-                            nombre = product.nombre,
-                            precio = product.precio,
+                            productoId = producto.id,
+                            codigoProducto = producto.codigo,
+                            nombre = producto.nombre,
+                            precio = producto.precio,
                             cantidad = 1
                         )
                     )
                 }
             } catch (e: Exception) {
-                _state.value = _state.value.copy(error = "Error al agregar al carrito: ${e.message}")
+                _estado.value = _estado.value.copy(error = "Error al agregar al carrito: ${e.message}")
             }
         }
     }
 
-    fun clearError() {
-        _state.value = _state.value.copy(error = null)
+    fun limpiarError() {
+        _estado.value = _estado.value.copy(error = null)
     }
 }

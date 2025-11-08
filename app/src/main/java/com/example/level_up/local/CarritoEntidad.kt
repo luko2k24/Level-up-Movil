@@ -8,6 +8,7 @@ data class CarritoEntidad(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val productoId: Int,
     val nombre: String,
+    val codigoProducto: String,
     val precio: Int,
     val cantidad: Int
 )
