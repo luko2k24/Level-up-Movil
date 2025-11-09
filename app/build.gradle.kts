@@ -8,6 +8,7 @@ plugins {
 android {
     namespace = "com.example.level_up"
     compileSdk = 34
+
     defaultConfig {
         applicationId = "com.example.level_up"
         minSdk = 26
@@ -16,6 +17,15 @@ android {
         versionName = "1.0"
         vectorDrawables.useSupportLibrary = true
     }
+
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
+
 
     buildFeatures { compose = true }
 
@@ -55,7 +65,12 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
 
 
-    testImplementation("junit:junit:4.13.2")
+    // Dependencias de JUnit 5 (¡Correctas!)
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+
+    // Dependencias de AndroidTest (para pruebas de UI)
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.10.01"))

@@ -1,8 +1,8 @@
-package cl.levelup.mobile.model.repository
+package com.example.level_up.repository
 
 
-import cl.levelup.mobile.model.local.ProductoDao
-import cl.levelup.mobile.model.local.ProductoEntidad
+import com.example.level_up.local.ProductoDao
+import com.example.level_up.local.ProductoEntidad
 import kotlinx.coroutines.flow.Flow
 
 class ProductoRepository(private val dao: ProductoDao) {

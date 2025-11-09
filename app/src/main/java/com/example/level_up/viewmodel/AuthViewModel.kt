@@ -1,11 +1,13 @@
 package com.example.level_up.viewmodel
-import cl.levelup.mobile.model.local.UsuarioEntidad
-import cl.levelup.mobile.model.repository.UsuarioRepository
+
 import com.example.level_up.local.BaseDeDatosApp
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import cl.levelup.mobile.utils.Validacion
+import com.example.level_up.local.UsuarioEntidad
+import com.example.level_up.repository.UsuarioRepository
+import com.example.level_up.utils.Validacion
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

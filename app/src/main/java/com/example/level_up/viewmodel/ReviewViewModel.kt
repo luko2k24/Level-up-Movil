@@ -4,13 +4,14 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.level_up.local.BaseDeDatosApp
-import cl.levelup.mobile.model.local.ProductoEntidad
-import cl.levelup.mobile.model.local.ReseniaEntidad
-import cl.levelup.mobile.model.local.UsuarioEntidad
-import cl.levelup.mobile.model.repository.ProductoRepository
-import cl.levelup.mobile.model.repository.ReseniaRepository
-import cl.levelup.mobile.model.repository.UsuarioRepository
-import cl.levelup.mobile.utils.Validacion
+import com.example.level_up.local.ProductoEntidad
+import com.example.level_up.local.ReseniaEntidad
+import com.example.level_up.local.UsuarioEntidad
+import com.example.level_up.repository.ProductoRepository
+import com.example.level_up.repository.ReseniaRepository
+import com.example.level_up.repository.UsuarioRepository
+import com.example.level_up.utils.Validacion
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

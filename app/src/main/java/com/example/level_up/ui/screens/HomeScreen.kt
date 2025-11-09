@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-// --- CORRECCIÓN: Importar el ViewModel desde el paquete correcto ---
 import com.example.level_up.viewmodel.CatalogoViewModel
 import com.example.level_up.R
 import com.example.level_up.ui.obtenerImagenProducto
@@ -286,7 +285,7 @@ private fun AccionesRapidas(
 @Composable
 private fun ProductosDestacados(
     visible: Boolean,
-    productos: List<cl.levelup.mobile.model.local.ProductoEntidad>,
+    productos: List<com.example.level_up.local.ProductoEntidad>,
     onProductoClick: (Int) -> Unit
 ) {
     AnimatedVisibility(
@@ -441,7 +440,7 @@ private fun TarjetaAccionRapida(
 
 @Composable
 private fun TarjetaProductoDestacado(
-    producto: cl.levelup.mobile.model.local.ProductoEntidad,
+    producto: com.example.level_up.local.ProductoEntidad,
     onClick: () -> Unit
 ) {
     Card(

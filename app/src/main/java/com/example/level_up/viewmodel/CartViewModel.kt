@@ -3,14 +3,15 @@ package com.example.level_up.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import cl.levelup.mobile.model.local.CarritoEntidad
-import cl.levelup.mobile.model.local.PedidoEntidad
-import cl.levelup.mobile.model.local.UsuarioEntidad
-import cl.levelup.mobile.model.repository.CarritoRepository
-import cl.levelup.mobile.model.repository.PedidoRepository
-import cl.levelup.mobile.model.repository.UsuarioRepository
-import cl.levelup.mobile.utils.Validacion
+
 import com.example.level_up.local.BaseDeDatosApp
+import com.example.level_up.local.CarritoEntidad
+import com.example.level_up.local.PedidoEntidad
+import com.example.level_up.local.UsuarioEntidad
+import com.example.level_up.repository.CarritoRepository
+import com.example.level_up.repository.PedidoRepository
+import com.example.level_up.repository.UsuarioRepository
+import com.example.level_up.utils.Validacion
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
