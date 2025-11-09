@@ -1,4 +1,4 @@
-package cl.levelup.mobile.utils
+package com.example.level_up.utils
 
 import android.util.Patterns
 

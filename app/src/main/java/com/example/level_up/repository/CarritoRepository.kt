@@ -1,7 +1,7 @@
-package cl.levelup.mobile.model.repository
+package com.example.level_up.repository
 
-import cl.levelup.mobile.model.local.CarritoDao
-import cl.levelup.mobile.model.local.CarritoEntidad
+import com.example.level_up.local.CarritoDao
+import com.example.level_up.local.CarritoEntidad
 import kotlinx.coroutines.flow.Flow
 
 class CarritoRepository(private val dao: CarritoDao) {

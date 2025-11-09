@@ -26,8 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import cl.levelup.mobile.model.local.ProductoEntidad
-// --- CORRECCIÓN: Importar el ViewModel desde el paquete correcto ---
+import com.example.level_up.local.ProductoEntidad
 import com.example.level_up.viewmodel.CatalogoViewModel
 import com.example.level_up.ui.obtenerImagenProducto
 

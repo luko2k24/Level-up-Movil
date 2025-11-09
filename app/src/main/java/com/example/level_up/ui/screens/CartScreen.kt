@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import cl.levelup.mobile.model.local.CarritoEntidad
+import com.example.level_up.local.CarritoEntidad
 import com.example.level_up.ui.obtenerImagenProducto
 import com.example.level_up.viewmodel.CartViewModel
 

@@ -1,8 +1,7 @@
-package cl.levelup.mobile.model.repository
+package com.example.level_up.repository
 
-
-import cl.levelup.mobile.model.local.UsuarioDao
-import cl.levelup.mobile.model.local.UsuarioEntidad
+import com.example.level_up.local.UsuarioDao
+import com.example.level_up.local.UsuarioEntidad
 import kotlinx.coroutines.flow.Flow
 
 

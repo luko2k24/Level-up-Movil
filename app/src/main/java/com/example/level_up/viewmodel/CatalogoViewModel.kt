@@ -4,11 +4,11 @@ package com.example.level_up.viewmodel // <-- ¡¡ESTA LÍNEA ESTÁ CORREGIDA!!
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import cl.levelup.mobile.model.local.CarritoEntidad
-import cl.levelup.mobile.model.local.ProductoEntidad
-import cl.levelup.mobile.model.repository.CarritoRepository
-import cl.levelup.mobile.model.repository.ProductoRepository
 import com.example.level_up.local.BaseDeDatosApp
+import com.example.level_up.local.CarritoEntidad
+import com.example.level_up.local.ProductoEntidad
+import com.example.level_up.repository.CarritoRepository
+import com.example.level_up.repository.ProductoRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.String
