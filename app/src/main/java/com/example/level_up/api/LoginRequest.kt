@@ -1,4 +1,6 @@
 package com.example.level_up.api
 
-class LoginRequest {
-}
+data class LoginRequest(
+    val correo: String,
+    val contrasena: String
+)

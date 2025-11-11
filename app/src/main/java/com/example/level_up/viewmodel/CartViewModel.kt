@@ -3,7 +3,8 @@ package com.example.level_up.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-
+import com.example.level_up.api.ApiClient
+import com.example.level_up.api.StatsUpdateRequest // <<< Importación necesaria
 import com.example.level_up.local.BaseDeDatosApp
 import com.example.level_up.local.CarritoEntidad
 import com.example.level_up.local.PedidoEntidad
@@ -14,6 +15,7 @@ import com.example.level_up.repository.UsuarioRepository
 import com.example.level_up.utils.Validacion
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 data class CartState(
     val isLoading: Boolean = false,
@@ -22,6 +24,8 @@ data class CartState(
     val orderSuccess: Boolean = false,
     val currentUser: UsuarioEntidad? = null
 )
+
+// NOTA: EL data class StatsUpdateRequest FUE ELIMINADO DE AQUÍ Y MOVIO A /API
 
 class CartViewModel(app: Application) : AndroidViewModel(app) {
     private val db = BaseDeDatosApp.obtener(app)
@@ -123,6 +127,9 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Procesa la orden llamando a los microservicios.
+     */
     fun processOrder() {
         viewModelScope.launch {
             val currentItems = items.value
@@ -146,26 +153,51 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
                 val discountAmount = (subtotal * discountPercentage) / 100
                 val finalAmount = subtotal - discountAmount
 
+                // Generar JSON de ítems
+                val itemsJson = currentItems.joinToString(";") { "${it.nombre}:${it.cantidad}:${it.precio}" }
+
                 val order = PedidoEntidad(
                     usuarioId = currentUser.id,
                     montoTotal = subtotal,
                     montoDescuento = discountAmount,
                     montoFinal = finalAmount,
                     estado = "completed",
-                    itemsJson = currentItems.joinToString(";") { "${it.nombre}:${it.cantidad}:${it.precio}" }
+                    itemsJson = itemsJson
                 )
 
-                orderRepo.insertarPedido(order)
+                // 1. *** LLAMADA A LA API: CREAR PEDIDO (msvc-pedidos:8083) ***
+                val orderResponse = ApiClient.pedidoService.crear(order)
+                if (!orderResponse.isSuccessful) {
+                    throw HttpException(orderResponse)
+                }
 
-                // Update user stats
+                // 2. Calcular y actualizar stats
                 val newTotalPurchases = currentUser.totalCompras + 1
                 val pointsEarned = (finalAmount / 1000).toInt() // 1 point per 1000 CLP
                 val newPoints = currentUser.puntosLevelUp + pointsEarned
                 val newLevel = Validacion.calcularNivel(newPoints)
 
-                userRepo.actualizarTotalCompras(currentUser.id, newTotalPurchases)
-                userRepo.actualizarNivelUsuario(currentUser.id, newPoints, newLevel)
+                // Instanciación de StatsUpdateRequest (CORRECTO)
+                val statsRequest = StatsUpdateRequest(
+                    puntos = newPoints,
+                    nivel = newLevel,
+                    totalCompras = newTotalPurchases
+                )
 
+                // *** LLAMADA A LA API: ACTUALIZAR ESTADÍSTICAS (msvc-usuarios:8085) ***
+                val statsResponse = ApiClient.usuarioService.actualizarStats(currentUser.id.toLong(), statsRequest)
+                if (!statsResponse.isSuccessful) {
+                    throw HttpException(statsResponse)
+                }
+
+                // 3. Actualizar la caché local del usuario con los nuevos stats
+                val updatedUser = statsResponse.body() // El backend retorna el usuario actualizado
+                if (updatedUser != null) {
+                    // Copiamos los campos actualizados y mantenemos el ID local (Room)
+                    userRepo.actualizar(updatedUser.copy(id = currentUser.id))
+                }
+
+                // 4. Limpiar carrito local y notificar éxito
                 cartRepo.limpiar()
 
                 _state.value = _state.value.copy(
@@ -175,9 +207,13 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
                 )
 
             } catch (e: Exception) {
+                val mensajeError = when (e) {
+                    is HttpException -> "Error de servicio: Falló el Microservicio de Pedidos o Usuarios (${(e as HttpException).code()})."
+                    else -> "Error de red. Asegúrate de que el backend esté corriendo y la IP sea correcta."
+                }
                 _state.value = _state.value.copy(
                     isProcessingOrder = false,
-                    error = "Error al procesar la orden: ${e.message}"
+                    error = mensajeError
                 )
             }
         }
