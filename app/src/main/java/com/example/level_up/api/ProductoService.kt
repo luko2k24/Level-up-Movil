@@ -1,0 +1,10 @@
+package com.example.level_up.api
+
+import com.example.level_up.local.ProductoEntidad
+import retrofit2.Response
+import retrofit2.http.GET
+
+interface ProductoService {
+    @GET("productos")
+    suspend fun listarTodos(): Response<List<ProductoEntidad>> // GET /api/productos
+}

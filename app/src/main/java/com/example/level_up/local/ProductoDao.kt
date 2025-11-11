@@ -37,6 +37,9 @@ interface ProductoDao {
     @Query("SELECT COUNT(*) FROM Productos")
     suspend fun contar(): Int
 
+    @Query("DELETE FROM Productos")
+    suspend fun eliminarTodos() // <<< FUNCIÓN AGREGADA
+
     @Query("UPDATE Productos SET valoracion = :valoracion WHERE id = :productoId")
     suspend fun actualizarValoracion(productoId: Int, valoracion: Float)
 }
