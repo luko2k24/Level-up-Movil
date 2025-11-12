@@ -68,7 +68,9 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-database-ktx")
-
+    //Mock y coroutines
+    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
     // Dependencias de JUnit 5 (¡Correctas!)
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")

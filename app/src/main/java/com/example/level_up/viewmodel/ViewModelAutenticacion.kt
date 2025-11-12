@@ -31,8 +31,11 @@ data class EstadoAuth(
 )
 
 class ViewModelAutenticacion(app: Application) : AndroidViewModel(app) {
-    private val repo = UsuarioRepository(BaseDeDatosApp.obtener(app).UsuarioDao())
-    private val _estado = MutableStateFlow(EstadoAuth())
+    // --- CAMBIO 1: 'private val' -> 'internal var' ---
+    internal var repo = UsuarioRepository(BaseDeDatosApp.obtener(app).UsuarioDao())
+
+    // --- CAMBIO 2: 'private val' -> 'internal val' ---
+    internal val _estado = MutableStateFlow(EstadoAuth())
     val estado: StateFlow<EstadoAuth> = _estado
 
     // --- Funciones para actualizar el estado desde la UI ---
