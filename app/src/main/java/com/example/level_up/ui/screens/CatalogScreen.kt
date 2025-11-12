@@ -98,7 +98,8 @@ fun CatalogScreen(nav: NavController, viewModel: CatalogoViewModel = viewModel()
                     TarjetaProducto(
                         producto = producto,
                         alHacerClick = {
-                            // TODO: Navegar a la pantalla de detalle del producto
+                            // [CAMBIO CLAVE] Navega a la pantalla de detalle pasando el ID del producto
+                            nav.navigate("product_detail/${producto.id}")
                         },
                         alAgregarAlCarrito = { viewModel.agregarAlCarrito(producto) }
                     )

@@ -31,6 +31,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.level_up.services.recordarServicioRecursosNativos
 import com.example.level_up.viewmodel.ProfileViewModel
+// [IMPORT NECESARIO PARA PEDIDOS]
+import com.example.level_up.local.PedidoEntidad
+import androidx.compose.animation.slideOutHorizontally // [IMPORT NECESARIO PARA ANIMACIÓN]
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,6 +127,14 @@ fun PantallaPerfil(nav: NavController, viewModel: ProfileViewModel = viewModel()
                     compras = usuario.totalCompras,
                     descuento = viewModel.getDiscountPercentage(),
                     infoNivel = viewModel.getUserLevelInfo()
+                )
+            }
+            // --- [NUEVA SECCIÓN DE PEDIDOS] ---
+            item {
+                TarjetaPedidos(
+                    visible = esVisible,
+                    pedidos = estado.userOrders,
+                    totalGastado = estado.totalSpent
                 )
             }
         }
@@ -412,6 +423,93 @@ private fun TarjetaEstadisticas(
         }
     }
 }
+
+// [INICIO DE LAS FUNCIONES QUE FALTABAN]
+
+// --- [NUEVOS COMPONENTES DE PEDIDOS] ---
+
+@Composable
+private fun TarjetaPedidos(visible: Boolean, pedidos: List<com.example.level_up.local.PedidoEntidad>, totalGastado: Int) {
+    // Usamos AnimatedVisibility para que el contenido aparezca con un efecto
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInHorizontally(
+            initialOffsetX = { it }, // Viene desde la derecha
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+        ) + fadeIn(animationSpec = tween(600, delayMillis = 600)),
+        exit = androidx.compose.animation.slideOutHorizontally()
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(
+                    text = "Historial de Pedidos (${pedidos.size})",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Total gastado en Level-Up: $$totalGastado",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                Divider()
+
+                if (pedidos.isEmpty()) {
+                    Text("Aún no tienes pedidos registrados.", style = MaterialTheme.typography.bodyMedium)
+                } else {
+                    pedidos.take(3).forEach { pedido -> // Mostrar solo los 3 más recientes
+                        FilaPedido(pedido)
+                        // Lógica para no poner el divisor después del último elemento mostrado
+                        if (pedidos.indexOf(pedido) < 2 && pedidos.size > pedidos.indexOf(pedido) + 1) {
+                            Divider(Modifier.height(1.dp).padding(horizontal = 8.dp), color = MaterialTheme.colorScheme.surface)
+                        }
+                    }
+                    if (pedidos.size > 3) {
+                        TextButton(onClick = { /* TODO: Navegar a Pantalla de Historial Completo */ }) {
+                            Text("Ver todos los ${pedidos.size} pedidos")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilaPedido(pedido: com.example.level_up.local.PedidoEntidad) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = "Pedido #${pedido.id}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "Total final: $${pedido.montoFinal}",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        val fecha = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(pedido.fechaCreacion))
+        Text(
+            text = fecha,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+// [FIN DE LAS FUNCIONES QUE FALTABAN]
 
 @Composable
 private fun AccionesPerfil(
