@@ -4,15 +4,15 @@ import com.example.level_up.local.BaseDeDatosApp
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.level_up.api.ApiClient // Importado para Retrofit
-import com.example.level_up.api.LoginRequest // Importado para el DTO
+import com.example.level_up.api.ApiClient
+import com.example.level_up.api.LoginRequest
 import com.example.level_up.local.UsuarioEntidad
 import com.example.level_up.repository.UsuarioRepository
 import com.example.level_up.utils.Validacion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException // Importado para manejo de errores de red
+import retrofit2.HttpException
 
 // Estado de la autenticación
 data class EstadoAuth(
@@ -31,12 +31,12 @@ data class EstadoAuth(
 )
 
 class ViewModelAutenticacion(app: Application) : AndroidViewModel(app) {
-    // --- CAMBIO 1: 'private val' -> 'internal var' ---
     internal var repo = UsuarioRepository(BaseDeDatosApp.obtener(app).UsuarioDao())
-
-    // --- CAMBIO 2: 'private val' -> 'internal val' ---
     internal val _estado = MutableStateFlow(EstadoAuth())
     val estado: StateFlow<EstadoAuth> = _estado
+
+    // --- ¡NUEVO! Propiedad inyectable para el servicio ---
+    internal var usuarioService = ApiClient.usuarioService
 
     // --- Funciones para actualizar el estado desde la UI ---
     fun onNombre(v: String) {
@@ -105,13 +105,11 @@ class ViewModelAutenticacion(app: Application) : AndroidViewModel(app) {
                 referidoPor = s.codigoReferido.takeIf { it.isNotBlank() } ?: ""
             )
 
-            // *** LLAMADA A LA API DE REGISTRO ***
-            val response = ApiClient.usuarioService.registrar(usuarioParaRegistro)
+            // *** CAMBIO: Usa la variable inyectada ***
+            val response = usuarioService.registrar(usuarioParaRegistro)
 
             if (response.isSuccessful && response.body() != null) {
                 val usuarioRemoto = response.body()!!
-
-                // Guarda en Room usando la función REGISTRAR del repositorio (CORREGIDO)
                 repo.registrar(usuarioRemoto)
 
                 _estado.value = s.copy(
@@ -121,7 +119,6 @@ class ViewModelAutenticacion(app: Application) : AndroidViewModel(app) {
                     errores = emptyMap()
                 )
             } else {
-                // Manejar error de la API (ej: correo duplicado 409)
                 val errorMsg = if (response.code() == 409) "Este correo ya está registrado." else "Registro fallido. Error: ${response.code()}"
                 _estado.value = s.copy(
                     estaCargando = false,
@@ -157,24 +154,21 @@ class ViewModelAutenticacion(app: Application) : AndroidViewModel(app) {
         try {
             val request = LoginRequest(correo = s.correo.lowercase(), contrasena = s.clave)
 
-            // *** LLAMADA A LA API DE LOGIN ***
-            val response = ApiClient.usuarioService.login(request)
+            // *** CAMBIO: Usa la variable inyectada ***
+            val response = usuarioService.login(request)
 
             if (response.isSuccessful && response.body() != null) {
                 val usuarioRemoto = response.body()!!
-
-                // Éxito: Actualiza el estado local (Room) con los datos del servidor
                 repo.actualizarEstadoSesion(usuarioRemoto.id, true)
                 repo.actualizar(usuarioRemoto.copy(sesionIniciada = true))
 
                 _estado.value = s.copy(
                     estaCargando = false,
-                    exito = true, // Marcamos como éxito
-                    usuarioActual = usuarioRemoto, // Guardamos el usuario
+                    exito = true,
+                    usuarioActual = usuarioRemoto,
                     errores = emptyMap()
                 )
             } else {
-                // Manejo de error de credenciales
                 _estado.value = s.copy(
                     estaCargando = false,
                     errores = mapOf("general" to "Credenciales inválidas")
@@ -193,14 +187,18 @@ class ViewModelAutenticacion(app: Application) : AndroidViewModel(app) {
     }
 
     fun cerrarSesion() = viewModelScope.launch {
-        // CORREGIDO: Usamos usuarioActual, que es la fuente de verdad del estado.
         val usuarioACerrar = _estado.value.usuarioActual
 
         if (usuarioACerrar != null) {
-            // Llama al API para informar al backend (id.toLong() porque el backend usa Long)
-            ApiClient.usuarioService.actualizarEstadoSesion(usuarioACerrar.id.toLong(), false)
-            // Actualiza el estado local (Room)
-            repo.actualizarEstadoSesion(usuarioACerrar.id, false)
+            try {
+                // *** CAMBIO: Usa la variable inyectada ***
+                usuarioService.actualizarEstadoSesion(usuarioACerrar.id.toLong(), false)
+                repo.actualizarEstadoSesion(usuarioACerrar.id, false)
+            } catch (e: Exception) {
+                // No molestar al usuario si falla el cierre de sesión en el backend
+                // Simplemente desloguear localmente
+                repo.actualizarEstadoSesion(usuarioACerrar.id, false)
+            }
         }
         _estado.value = EstadoAuth() // Resetea el estado
     }

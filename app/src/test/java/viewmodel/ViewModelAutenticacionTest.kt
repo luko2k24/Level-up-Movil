@@ -1,12 +1,12 @@
-package com.example.level_up.viewmodel // <--- Refleja el paquete del ViewModel
+package com.example.level_up.viewmodel
 
 import android.app.Application
-import com.example.level_up.MainCoroutineRule // <--- Importa la regla que creamos
-import com.example.level_up.api.ApiClient
+import com.example.level_up.MainCoroutineRule
 import com.example.level_up.api.LoginRequest
 import com.example.level_up.api.UsuarioService
 import com.example.level_up.local.UsuarioEntidad
 import com.example.level_up.repository.UsuarioRepository
+import com.example.level_up.utils.Validacion // Importar Validacion
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
@@ -41,36 +41,25 @@ class ViewModelAutenticacionTest {
     // 3. El ViewModel a probar
     private lateinit var viewModel: ViewModelAutenticacion
 
-    // 4. Mocks para la API
-    private val apiClientMock = mockkStatic(ApiClient::class)
-
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
 
-        // Simular el ApiClient estático
-        every { ApiClient.usuarioService } returns mockUsuarioService
+        // --- CORRECCIÓN DE MOCKS ESTÁTICOS ---
+        mockkObject(Validacion) // <-- ¡LA SOLUCIÓN AL NPE! Mockear el validador
 
         // Crear el ViewModel real
         viewModel = ViewModelAutenticacion(mockApplication)
 
-        // --- ¡CAMBIO IMPORTANTE! ---
-        // Necesitamos "inyectar" nuestro repositorio falso en el ViewModel.
-        // Debes cambiar la variable 'repo' en ViewModelAutenticacion.kt
-        //
-        // EN: app/src/main/java/com/example/level_up/viewmodel/ViewModelAutenticacion.kt
-        // CAMBIA:
-        // private val repo = UsuarioRepository(BaseDeDatosApp.obtener(app).UsuarioDao())
-        // POR:
-        // internal var repo = UsuarioRepository(BaseDeDatosApp.obtener(app).UsuarioDao())
-        //
-        // Esto nos permite hacer lo siguiente:
+        // --- Inyectar mocks en las variables 'internal' ---
         viewModel.repo = mockUsuarioRepository
+        viewModel.usuarioService = mockUsuarioService // <-- ¡NUEVA INYECCIÓN!
     }
 
     @AfterEach
     fun tearDown() {
-        unmockkAll() // Limpiar mocks estáticos
+        // Limpiar solo el mock estático de Validacion
+        unmockkObject(Validacion)
     }
 
     // --- INICIAN LAS PRUEBAS ---
@@ -82,6 +71,11 @@ class ViewModelAutenticacionTest {
         val pass = "123456"
         val usuarioMock = UsuarioEntidad(id = 1, nombre = "Test", correo = correo, edad = 20, contrasena = pass)
 
+        // --- Simular que la validación PASA ---
+        every { Validacion.esCorreoValido(correo) } returns true
+        every { Validacion.esContrasenaValida(pass) } returns true
+
+        // Simular API y Repo
         coEvery { mockUsuarioService.login(LoginRequest(correo, pass)) } returns Response.success(usuarioMock)
         coEvery { mockUsuarioRepository.actualizarEstadoSesion(1, true) } just Runs
         coEvery { mockUsuarioRepository.actualizar(any()) } just Runs
@@ -103,6 +97,12 @@ class ViewModelAutenticacionTest {
         // 1. Arrange
         val correo = "test@duocuc.cl"
         val pass = "123456"
+
+        // --- Simular que la validación PASA ---
+        every { Validacion.esCorreoValido(correo) } returns true
+        every { Validacion.esContrasenaValida(pass) } returns true
+
+        // Simular que la API Falla (401)
         coEvery { mockUsuarioService.login(any()) } returns Response.error(401, "".toResponseBody(null))
 
         // 2. Act
@@ -119,9 +119,17 @@ class ViewModelAutenticacionTest {
 
     @Test
     fun `iniciarSesion con correo invalido no debe llamar a la API`() = runTest {
-        // 1. Act
-        viewModel.onCorreo("correo-invalido")
-        viewModel.onClave("123456")
+        // 1. Arrange
+        val correo = "correo-invalido"
+        val pass = "123456"
+
+        // --- Simular que la validación FALLA ---
+        every { Validacion.esCorreoValido(correo) } returns false
+        every { Validacion.esContrasenaValida(pass) } returns true // Simular que esta pasa
+
+        // 2. Act
+        viewModel.onCorreo(correo)
+        viewModel.onClave(pass)
         viewModel.iniciarSesion()
 
         // 3. Assert
@@ -140,6 +148,16 @@ class ViewModelAutenticacionTest {
         val clave = "password"
         val usuarioRegistradoMock = UsuarioEntidad(id = 2, nombre = nombre, correo = correo, edad = 25, contrasena = clave)
 
+        // --- Simular que TODA la validación PASA ---
+        every { Validacion.esNombreValido(nombre) } returns true
+        every { Validacion.esCorreoValido(correo) } returns true
+        every { Validacion.esAdulto(25) } returns true
+        every { Validacion.esContrasenaValida(clave) } returns true
+        every { Validacion.contrasenasCoinciden(clave, clave) } returns true
+        every { Validacion.esCodigoReferidoValido(any()) } returns true
+        every { Validacion.generarCodigoReferido(nombre) } returns "USU1234"
+
+        // Simular API y Repo
         coEvery { mockUsuarioService.registrar(any()) } returns Response.success(usuarioRegistradoMock)
         coEvery { mockUsuarioRepository.registrar(any()) } returns 2L
 
@@ -164,6 +182,17 @@ class ViewModelAutenticacionTest {
         val correo = "nuevo@test.cl"
         val edad = "25"
         val clave = "password"
+
+        // --- Simular que TODA la validación PASA ---
+        every { Validacion.esNombreValido(nombre) } returns true
+        every { Validacion.esCorreoValido(correo) } returns true
+        every { Validacion.esAdulto(25) } returns true
+        every { Validacion.esContrasenaValida(clave) } returns true
+        every { Validacion.contrasenasCoinciden(clave, clave) } returns true
+        every { Validacion.esCodigoReferidoValido(any()) } returns true
+        every { Validacion.generarCodigoReferido(nombre) } returns "USU1234"
+
+        // Simular API (Error 409 Conflict)
         coEvery { mockUsuarioService.registrar(any()) } returns Response.error(409, "".toResponseBody(null))
 
         // 2. Act
@@ -182,19 +211,30 @@ class ViewModelAutenticacionTest {
 
     @Test
     fun `registrar con contrasenas no coincidentes debe poner error`() = runTest {
-        // 1. Act
+        // 1. Arrange
+        val clave1 = "123456"
+        val clave2 = "654321" // Diferente
+
+        // --- Simular validaciones (una falla) ---
+        every { Validacion.esNombreValido(any()) } returns true
+        every { Validacion.esCorreoValido(any()) } returns true
+        every { Validacion.esAdulto(any()) } returns true
+        every { Validacion.esContrasenaValida(clave1) } returns true
+        every { Validacion.contrasenasCoinciden(clave1, clave2) } returns false // <-- La que falla
+
+        // 2. Act
         viewModel.onNombre("Test")
         viewModel.onCorreo("test@test.cl")
         viewModel.onEdad("20")
-        viewModel.onClave("123456")
-        viewModel.onConfirmarClave("654321") // Diferente
+        viewModel.onClave(clave1)
+        viewModel.onConfirmarClave(clave2)
         viewModel.registrar()
 
         // 3. Assert
         val estado = viewModel.estado.value
         assertFalse(estado.estaCargando)
         assertEquals("Las contraseñas no coinciden", estado.errores["confirmarClave"])
-        coVerify(exactly = 0) { mockUsuarioService.registrar(any()) }
+        coVerify(exactly = 0) { mockUsuarioService.registrar(any()) } // API no debe ser llamada
     }
 
     @Test
@@ -202,10 +242,10 @@ class ViewModelAutenticacionTest {
         // 1. Arrange
         val usuarioMock = UsuarioEntidad(id = 1, nombre = "Test", correo = "test@test.cl", edad = 20, contrasena = "123")
 
-        // --- CAMBIO 3: Usar '_estado' (con guion bajo) ---
-        // Forzamos el estado de "logueado"
+        // Forzamos el estado de "logueado" (usando _estado)
         viewModel._estado.value = viewModel.estado.value.copy(usuarioActual = usuarioMock)
 
+        // Simular API y Repo
         coEvery { mockUsuarioService.actualizarEstadoSesion(1L, false) } returns Response.success(usuarioMock)
         coEvery { mockUsuarioRepository.actualizarEstadoSesion(1, false) } just Runs
 

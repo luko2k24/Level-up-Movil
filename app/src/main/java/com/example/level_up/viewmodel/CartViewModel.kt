@@ -25,27 +25,29 @@ data class CartState(
     val currentUser: UsuarioEntidad? = null
 )
 
-// NOTA: EL data class StatsUpdateRequest FUE ELIMINADO DE AQUÍ Y MOVIO A /API
-
 class CartViewModel(app: Application) : AndroidViewModel(app) {
     private val db = BaseDeDatosApp.obtener(app)
-    private val cartRepo = CarritoRepository(db.CarritoDao())
-    private val orderRepo = PedidoRepository(db.PedidoDao())
-    private val userRepo = UsuarioRepository(db.UsuarioDao())
 
-    private val _state = MutableStateFlow(CartState())
+    // --- CAMBIOS: private val -> internal var ---
+    internal var cartRepo = CarritoRepository(db.CarritoDao())
+    internal var orderRepo = PedidoRepository(db.PedidoDao())
+    internal var userRepo = UsuarioRepository(db.UsuarioDao())
+
+    // --- CAMBIOS: Inyección de servicios de API ---
+    internal var pedidoService = ApiClient.pedidoService
+    internal var usuarioService = ApiClient.usuarioService
+
+    // --- CAMBIO: private val -> internal val ---
+    internal val _state = MutableStateFlow(CartState())
     val state: StateFlow<CartState> = _state.asStateFlow()
 
-    /** Lista reactiva de ítems */
     val items: StateFlow<List<CarritoEntidad>> = cartRepo.observarCarrito()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    /** Subtotal sin descuento */
     val subtotal: StateFlow<Int> = items
         .map { list -> list.sumOf { it.precio * it.cantidad } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
-    /** Porcentaje de descuento según usuario (DUOC = 20% o por nivel) */
     val discountPct: StateFlow<Int> = state
         .map { s ->
             val u = s.currentUser
@@ -61,12 +63,10 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
         (sub * pct) / 100
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
-    /** Total final con descuento aplicado */
     val finalTotal: StateFlow<Int> = combine(subtotal, discountAmount) { sub, disc ->
         (sub - disc).coerceAtLeast(0)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
-    /** Conteo de unidades */
     val itemCount: StateFlow<Int> = items
         .map { list -> list.sumOf { it.cantidad } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
@@ -95,7 +95,6 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** eliminar por ID  */
     fun removeById(id: Int) {
         viewModelScope.launch {
             try {
@@ -106,7 +105,6 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Eliminar por entidad */
     fun removeItem(item: CarritoEntidad) {
         viewModelScope.launch {
             try {
@@ -127,9 +125,6 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /**
-     * Procesa la orden llamando a los microservicios.
-     */
     fun processOrder() {
         viewModelScope.launch {
             val currentItems = items.value
@@ -153,7 +148,6 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
                 val discountAmount = (subtotal * discountPercentage) / 100
                 val finalAmount = subtotal - discountAmount
 
-                // Generar JSON de ítems
                 val itemsJson = currentItems.joinToString(";") { "${it.nombre}:${it.cantidad}:${it.precio}" }
 
                 val order = PedidoEntidad(
@@ -165,39 +159,34 @@ class CartViewModel(app: Application) : AndroidViewModel(app) {
                     itemsJson = itemsJson
                 )
 
-                // 1. *** LLAMADA A LA API: CREAR PEDIDO (msvc-pedidos:8083) ***
-                val orderResponse = ApiClient.pedidoService.crear(order)
+                // --- CAMBIO: Usar variable inyectada ---
+                val orderResponse = pedidoService.crear(order)
                 if (!orderResponse.isSuccessful) {
                     throw HttpException(orderResponse)
                 }
 
-                // 2. Calcular y actualizar stats
                 val newTotalPurchases = currentUser.totalCompras + 1
-                val pointsEarned = (finalAmount / 1000).toInt() // 1 point per 1000 CLP
+                val pointsEarned = (finalAmount / 1000).toInt()
                 val newPoints = currentUser.puntosLevelUp + pointsEarned
                 val newLevel = Validacion.calcularNivel(newPoints)
 
-                // Instanciación de StatsUpdateRequest (CORRECTO)
                 val statsRequest = StatsUpdateRequest(
                     puntos = newPoints,
                     nivel = newLevel,
                     totalCompras = newTotalPurchases
                 )
 
-                // *** LLAMADA A LA API: ACTUALIZAR ESTADÍSTICAS (msvc-usuarios:8085) ***
-                val statsResponse = ApiClient.usuarioService.actualizarStats(currentUser.id.toLong(), statsRequest)
+                // --- CAMBIO: Usar variable inyectada ---
+                val statsResponse = usuarioService.actualizarStats(currentUser.id.toLong(), statsRequest)
                 if (!statsResponse.isSuccessful) {
                     throw HttpException(statsResponse)
                 }
 
-                // 3. Actualizar la caché local del usuario con los nuevos stats
-                val updatedUser = statsResponse.body() // El backend retorna el usuario actualizado
+                val updatedUser = statsResponse.body()
                 if (updatedUser != null) {
-                    // Copiamos los campos actualizados y mantenemos el ID local (Room)
                     userRepo.actualizar(updatedUser.copy(id = currentUser.id))
                 }
 
-                // 4. Limpiar carrito local y notificar éxito
                 cartRepo.limpiar()
 
                 _state.value = _state.value.copy(
