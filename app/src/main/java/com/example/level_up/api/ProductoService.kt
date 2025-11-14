@@ -5,6 +5,6 @@ import retrofit2.Response
 import retrofit2.http.GET
 
 interface ProductoService {
-    @GET("productos")
-    suspend fun listarTodos(): Response<List<ProductoEntidad>> // GET /api/productos
+    @GET("producto")
+    suspend fun listarTodos(): Response<List<ProductoEntidad>> // GET /api/producto
 }

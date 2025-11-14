@@ -3,7 +3,7 @@ package com.example.level_up.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "Productos")
+@Entity(tableName = "Producto")
 data class ProductoEntidad(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val codigo: String,

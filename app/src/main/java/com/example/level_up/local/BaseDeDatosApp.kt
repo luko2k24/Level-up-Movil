@@ -15,7 +15,7 @@ import androidx.room.RoomDatabase
         ReseniaEntidad::class,
         PedidoEntidad::class
     ],
-    version = 2,
+    version = 3, // <-- ¡VERSIÓN INCREMENTADA DE 2 A 3!
     exportSchema = false
 )
 abstract class BaseDeDatosApp : RoomDatabase() {
