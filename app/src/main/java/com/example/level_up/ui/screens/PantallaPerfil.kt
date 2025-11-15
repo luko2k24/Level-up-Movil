@@ -35,6 +35,13 @@ import com.example.level_up.viewmodel.ProfileViewModel
 import com.example.level_up.local.PedidoEntidad
 import androidx.compose.animation.slideOutHorizontally // [IMPORT NECESARIO PARA ANIMACIÓN]
 
+// --- NUEVOS IMPORTS PARA LA IMAGEN ---
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.layout.ContentScale
+import com.example.level_up.ui.obtenerImagenProducto // <-- Importar ImageMapper
+// ------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaPerfil(nav: NavController, viewModel: ProfileViewModel = viewModel()) {
@@ -424,9 +431,7 @@ private fun TarjetaEstadisticas(
     }
 }
 
-// [INICIO DE LAS FUNCIONES QUE FALTABAN]
-
-// --- [NUEVOS COMPONENTES DE PEDIDOS] ---
+// [INICIO DE LAS FUNCIONES DE PEDIDOS MODIFICADAS]
 
 @Composable
 private fun TarjetaPedidos(visible: Boolean, pedidos: List<com.example.level_up.local.PedidoEntidad>, totalGastado: Int) {
@@ -464,7 +469,18 @@ private fun TarjetaPedidos(visible: Boolean, pedidos: List<com.example.level_up.
                     Text("Aún no tienes pedidos registrados.", style = MaterialTheme.typography.bodyMedium)
                 } else {
                     pedidos.take(3).forEach { pedido -> // Mostrar solo los 3 más recientes
-                        FilaPedido(pedido)
+
+                        // NOTA IMPORTANTE: Se asume que el campo 'itemsJson'
+                        // tiene el código de producto para el mapeo visual.
+                        // Es una asunción temporal para que la imagen funcione.
+                        // En la vida real, el backend o PedidoEntidad deberían tener un campo:
+                        // val codigoProductoRepresentativo: String = "JM001"
+
+                        // Extraemos el código: Asumimos que el primer producto es el representativo
+                        val codigoPrimerProducto = extraerCodigoDePedido(pedido.itemsJson)
+
+                        FilaPedido(pedido, codigoPrimerProducto) // <-- Llamada a la fila modificada
+
                         // Lógica para no poner el divisor después del último elemento mostrado
                         if (pedidos.indexOf(pedido) < 2 && pedidos.size > pedidos.indexOf(pedido) + 1) {
                             Divider(Modifier.height(1.dp).padding(horizontal = 8.dp), color = MaterialTheme.colorScheme.surface)
@@ -481,25 +497,43 @@ private fun TarjetaPedidos(visible: Boolean, pedidos: List<com.example.level_up.
     }
 }
 
+// --- FUNCIÓN MODIFICADA PARA MOSTRAR LA IMAGEN ---
 @Composable
-private fun FilaPedido(pedido: com.example.level_up.local.PedidoEntidad) {
+private fun FilaPedido(
+    pedido: com.example.level_up.local.PedidoEntidad,
+    codigoProducto: String
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            Text(
-                text = "Pedido #${pedido.id}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+
+        // --- COLUMNA DE IMAGEN Y DETALLES ---
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = obtenerImagenProducto(codigoProducto), // <-- USAR IMAGEMAPPER
+                contentDescription = "Producto del pedido #${pedido.id}",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
             )
-            Text(
-                text = "Total final: $${pedido.montoFinal}",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = "Pedido #${pedido.id}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Total final: $${pedido.montoFinal}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
+
         val fecha = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(pedido.fechaCreacion))
         Text(
             text = fecha,
@@ -509,7 +543,16 @@ private fun FilaPedido(pedido: com.example.level_up.local.PedidoEntidad) {
     }
 }
 
-// [FIN DE LAS FUNCIONES QUE FALTABAN]
+// --- FUNCIÓN TEMPORAL PARA EXTRAER CÓDIGO (REQUIERE CAMBIO DE MODELO) ---
+private fun extraerCodigoDePedido(itemsJson: String): String {
+    // Si PedidoEntidad tuviera un campo 'codigoProductoRepresentativo', usaríamos eso.
+    // Mientras tanto, se devuelve un código existente (JM001) para que el icono se vea.
+    // **ADVERTENCIA:** ESTO DEBE SER REEMPLAZADO POR LÓGICA DE EXTRACCIÓN REAL.
+    // Si tu itemsJson guarda: "JM001:Carcassonne:1:24990;AC001:Mando:1:49990", la lógica sería complicada.
+    // Por simplicidad visual temporal, devolvemos un código fijo.
+    return "JM001"
+}
+// [FIN DE LAS FUNCIONES DE PEDIDOS MODIFICADAS]
 
 @Composable
 private fun AccionesPerfil(

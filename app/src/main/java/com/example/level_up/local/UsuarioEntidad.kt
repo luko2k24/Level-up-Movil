@@ -16,5 +16,6 @@ data class UsuarioEntidad(
     val codigoReferido: String = "",
     val referidoPor: String = "",
     val totalCompras: Int = 0,
-    val sesionIniciada: Boolean = false
+    val sesionIniciada: Boolean = false,
+    val rol: String = "CLIENTE"
 )

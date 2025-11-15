@@ -14,7 +14,8 @@ object Routes {
     const val CART = "cart"
     const val PROFILE = "profile"
     const val AUTH = "auth"
-    const val DETALLE_PRODUCTO = "product_detail/{productId}" // <-- NUEVA RUTA CON ARGUMENTO
+    const val DETALLE_PRODUCTO = "product_detail/{productId}"
+    const val ADMIN_DASHBOARD = "admin_dashboard"
 }
 
 @Composable
@@ -25,6 +26,7 @@ fun LevelUpNavHost(navController: NavHostController = rememberNavController()) {
         composable(Routes.CART) { CartScreen(navController) }
         composable(Routes.PROFILE) { PantallaPerfil(navController) }
         composable(Routes.AUTH) { AuthScreen(navController) }
+        composable(Routes.ADMIN_DASHBOARD) { AdminDashboardScreen(navController) } //
         // --- RUTA DEL DETALLE DE PRODUCTO (RESEÑAS) ---
         composable(
             route = Routes.DETALLE_PRODUCTO,

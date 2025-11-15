@@ -15,7 +15,7 @@ import androidx.room.RoomDatabase
         ReseniaEntidad::class,
         PedidoEntidad::class
     ],
-    version = 3, // <-- ¡VERSIÓN INCREMENTADA DE 2 A 3!
+    version = 5, // <-- ¡VERSIÓN FINAL NECESARIA PARA INCLUIR EL CAMPO 'ROL'!
     exportSchema = false
 )
 abstract class BaseDeDatosApp : RoomDatabase() {
@@ -36,7 +36,7 @@ abstract class BaseDeDatosApp : RoomDatabase() {
                     BaseDeDatosApp::class.java,
                     "levelup.db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()  // <-- Fuerza la eliminación de la DB corrupta y crea el nuevo esquema (con el campo 'rol')
                     .build()
                     .also { INSTANCIA = it }
             }
