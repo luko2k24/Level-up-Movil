@@ -4,7 +4,7 @@ import android.app.Application
 import com.example.level_up.MainCoroutineRule
 import com.example.level_up.api.LoginRequest
 import com.example.level_up.api.UsuarioService
-import com.example.level_up.local.UsuarioEntidad
+import com.example.level_up.Entidades.UsuarioEntidad
 import com.example.level_up.repository.UsuarioRepository
 import com.example.level_up.utils.Validacion // Importar Validacion
 import io.mockk.*

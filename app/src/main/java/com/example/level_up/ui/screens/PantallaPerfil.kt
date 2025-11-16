@@ -31,16 +31,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.level_up.services.recordarServicioRecursosNativos
 import com.example.level_up.viewmodel.ProfileViewModel
-// [IMPORT NECESARIO PARA PEDIDOS]
-import com.example.level_up.local.PedidoEntidad
-import androidx.compose.animation.slideOutHorizontally // [IMPORT NECESARIO PARA ANIMACIÓN]
-
-// --- NUEVOS IMPORTS PARA LA IMAGEN ---
+import com.example.level_up.Entidades.PedidoEntidad
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
-import com.example.level_up.ui.obtenerImagenProducto // <-- Importar ImageMapper
-// ------------------------------------
+import com.example.level_up.ui.obtenerImagenProducto
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -434,7 +430,7 @@ private fun TarjetaEstadisticas(
 // [INICIO DE LAS FUNCIONES DE PEDIDOS MODIFICADAS]
 
 @Composable
-private fun TarjetaPedidos(visible: Boolean, pedidos: List<com.example.level_up.local.PedidoEntidad>, totalGastado: Int) {
+private fun TarjetaPedidos(visible: Boolean, pedidos: List<PedidoEntidad>, totalGastado: Int) {
     // Usamos AnimatedVisibility para que el contenido aparezca con un efecto
     AnimatedVisibility(
         visible = visible,
@@ -470,11 +466,6 @@ private fun TarjetaPedidos(visible: Boolean, pedidos: List<com.example.level_up.
                 } else {
                     pedidos.take(3).forEach { pedido -> // Mostrar solo los 3 más recientes
 
-                        // NOTA IMPORTANTE: Se asume que el campo 'itemsJson'
-                        // tiene el código de producto para el mapeo visual.
-                        // Es una asunción temporal para que la imagen funcione.
-                        // En la vida real, el backend o PedidoEntidad deberían tener un campo:
-                        // val codigoProductoRepresentativo: String = "JM001"
 
                         // Extraemos el código: Asumimos que el primer producto es el representativo
                         val codigoPrimerProducto = extraerCodigoDePedido(pedido.itemsJson)
@@ -500,7 +491,7 @@ private fun TarjetaPedidos(visible: Boolean, pedidos: List<com.example.level_up.
 // --- FUNCIÓN MODIFICADA PARA MOSTRAR LA IMAGEN ---
 @Composable
 private fun FilaPedido(
-    pedido: com.example.level_up.local.PedidoEntidad,
+    pedido: PedidoEntidad,
     codigoProducto: String
 ) {
     Row(
@@ -545,14 +536,10 @@ private fun FilaPedido(
 
 // --- FUNCIÓN TEMPORAL PARA EXTRAER CÓDIGO (REQUIERE CAMBIO DE MODELO) ---
 private fun extraerCodigoDePedido(itemsJson: String): String {
-    // Si PedidoEntidad tuviera un campo 'codigoProductoRepresentativo', usaríamos eso.
-    // Mientras tanto, se devuelve un código existente (JM001) para que el icono se vea.
-    // **ADVERTENCIA:** ESTO DEBE SER REEMPLAZADO POR LÓGICA DE EXTRACCIÓN REAL.
-    // Si tu itemsJson guarda: "JM001:Carcassonne:1:24990;AC001:Mando:1:49990", la lógica sería complicada.
-    // Por simplicidad visual temporal, devolvemos un código fijo.
+
     return "JM001"
 }
-// [FIN DE LAS FUNCIONES DE PEDIDOS MODIFICADAS]
+
 
 @Composable
 private fun AccionesPerfil(

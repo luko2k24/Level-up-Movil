@@ -1,6 +1,6 @@
 package com.example.level_up.api
 
-import com.example.level_up.local.ReseniaEntidad
+import com.example.level_up.Entidades.ReseniaEntidad
 import retrofit2.Response
 import retrofit2.http.*
 

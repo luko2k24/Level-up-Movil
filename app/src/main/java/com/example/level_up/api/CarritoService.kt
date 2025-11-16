@@ -1,6 +1,6 @@
 package com.example.level_up.api
 
-import com.example.level_up.local.CarritoEntidad
+import com.example.level_up.Entidades.CarritoEntidad
 import retrofit2.Response
 import retrofit2.http.*
 

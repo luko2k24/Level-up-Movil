@@ -3,11 +3,11 @@ package com.example.level_up.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.level_up.api.ApiClient // <-- ¡AÑADIDO!
+import com.example.level_up.api.ApiClient
 import com.example.level_up.local.BaseDeDatosApp
-import com.example.level_up.local.ProductoEntidad
-import com.example.level_up.local.ReseniaEntidad
-import com.example.level_up.local.UsuarioEntidad
+import com.example.level_up.Entidades.ProductoEntidad
+import com.example.level_up.Entidades.ReseniaEntidad
+import com.example.level_up.Entidades.UsuarioEntidad
 import com.example.level_up.repository.ProductoRepository
 import com.example.level_up.repository.ReseniaRepository
 import com.example.level_up.repository.UsuarioRepository
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import retrofit2.HttpException // <-- ¡AÑADIDO!
+import retrofit2.HttpException
 
 data class ReviewState(
     val isLoading: Boolean = false,
@@ -59,7 +59,7 @@ class ReviewViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    // --- loadProductReviews (Actualizado para cargar de la API y usar el caché como fallback) ---
+    // --- loadProductReviews Actualizado para cargar de la API
     fun loadProductReviews(productId: Int) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)

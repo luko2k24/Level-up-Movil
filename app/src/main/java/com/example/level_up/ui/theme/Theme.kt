@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Paleta de colores oscuros basada en el PDF
+
 private val DarkColorScheme = darkColorScheme(
     primary = NeonGreen, // Color de Acento [cite: 72]
     secondary = ElectricBlue, // Color de Acento [cite: 72]

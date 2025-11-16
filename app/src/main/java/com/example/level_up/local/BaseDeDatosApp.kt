@@ -4,7 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-
+import com.example.level_up.Entidades.CarritoEntidad
+import com.example.level_up.Entidades.PedidoEntidad
+import com.example.level_up.Entidades.ProductoEntidad
+import com.example.level_up.Entidades.ReseniaEntidad
+import com.example.level_up.Entidades.UsuarioEntidad
+import com.example.level_up.dao.CarritoDao
+import com.example.level_up.dao.PedidoDao
+import com.example.level_up.dao.ProductoDao
+import com.example.level_up.dao.ReseniaDao
+import com.example.level_up.dao.UsuarioDao
 
 
 @Database(
@@ -15,14 +24,14 @@ import androidx.room.RoomDatabase
         ReseniaEntidad::class,
         PedidoEntidad::class
     ],
-    version = 5, // <-- ¡VERSIÓN FINAL NECESARIA PARA INCLUIR EL CAMPO 'ROL'!
+    version = 5, //
     exportSchema = false
 )
 abstract class BaseDeDatosApp : RoomDatabase() {
 
     abstract fun ProductoDao(): ProductoDao
     abstract fun UsuarioDao(): UsuarioDao
-    abstract fun CarritoDao():CarritoDao
+    abstract fun CarritoDao(): CarritoDao
     abstract fun ReseniaDao(): ReseniaDao
     abstract fun PedidoDao(): PedidoDao
 
@@ -36,7 +45,7 @@ abstract class BaseDeDatosApp : RoomDatabase() {
                     BaseDeDatosApp::class.java,
                     "levelup.db"
                 )
-                    .fallbackToDestructiveMigration()  // <-- Fuerza la eliminación de la DB corrupta y crea el nuevo esquema (con el campo 'rol')
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCIA = it }
             }

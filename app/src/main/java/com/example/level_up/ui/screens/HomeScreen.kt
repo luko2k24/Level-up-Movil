@@ -34,13 +34,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.level_up.Entidades.ProductoEntidad
 import com.example.level_up.viewmodel.CatalogoViewModel
 import com.example.level_up.R
 import com.example.level_up.ui.obtenerImagenProducto
 import com.example.level_up.viewmodel.AuthViewModel
 import com.example.level_up.viewmodel.AuthState
 
-// (El resto del archivo es idéntico al que te di antes y está correcto)
+
 private data class AccionRapida(
     val titulo: String,
     val icono: ImageVector,
@@ -101,7 +102,6 @@ private fun getNoticias(): List<Noticia> {
 fun HomeScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel(),
-    // --- CORRECCIÓN: Usar el ViewModel del paquete correcto ---
     catalogViewModel: CatalogoViewModel = viewModel()
 ) {
     val estadoAuth by authViewModel.state.collectAsState()
@@ -285,7 +285,7 @@ private fun AccionesRapidas(
 @Composable
 private fun ProductosDestacados(
     visible: Boolean,
-    productos: List<com.example.level_up.local.ProductoEntidad>,
+    productos: List<ProductoEntidad>,
     onProductoClick: (Int) -> Unit
 ) {
     AnimatedVisibility(
@@ -440,7 +440,7 @@ private fun TarjetaAccionRapida(
 
 @Composable
 private fun TarjetaProductoDestacado(
-    producto: com.example.level_up.local.ProductoEntidad,
+    producto: ProductoEntidad,
     onClick: () -> Unit
 ) {
     Card(

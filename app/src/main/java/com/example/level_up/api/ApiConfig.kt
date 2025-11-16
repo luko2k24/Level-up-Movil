@@ -12,7 +12,7 @@ private const val BASE_IP = "http://10.0.2.2"
 object RetrofitClient {
 
     private val logging = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY // Muestra toda la petición en Logcat
+        level = HttpLoggingInterceptor.Level.BODY
     }
 
     private val okHttpClient = OkHttpClient.Builder()
@@ -23,7 +23,7 @@ object RetrofitClient {
         .setLenient()
         .create()
 
-    // Función base para conectar a cualquier puerto de tu backend
+    // Función  para conectar a cualquier puerto del backend
     fun getClient(port: Int): Retrofit {
         val baseUrl = "$BASE_IP:$port/api/" // Ej: http://10.0.2.2:8085/api/
         return Retrofit.Builder()
@@ -34,7 +34,7 @@ object RetrofitClient {
     }
 }
 
-// Acceso singleton a todos los servicios de la API
+
 object ApiClient {
     // Puertos de los microservicios:
     val usuarioService: UsuarioService by lazy { RetrofitClient.getClient(8085).create(UsuarioService::class.java) } // Puerto 8085

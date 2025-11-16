@@ -1,7 +1,7 @@
 package com.example.level_up.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background // <-- ¡¡ESTA LÍNEA FALTABA!!
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,25 +19,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.level_up.viewmodel.EstadoAuth
 import com.example.level_up.viewmodel.ViewModelAutenticacion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthScreen( // Mantenemos el nombre AuthScreen para que Navigation.kt funcione
+fun AuthScreen(
     navController: NavController,
     viewModel: ViewModelAutenticacion = viewModel()
 ) {
     val estado by viewModel.estado.collectAsState()
 
-    // Navegación: Cuando el estado sea "exito", navega al perfil y limpia el estado
+    // Navegación: Cuando el estado sea "exito", navega al perfil/dashboard y limpia el estado
     LaunchedEffect(estado.exito) {
         if (estado.exito) {
-            navController.navigate(Routes.PROFILE) {
-                // Limpia la pila de navegación para que el usuario no pueda "volver" al login
-                popUpTo(Routes.HOME) { inclusive = true }
+
+            val destino = if (estado.usuarioActual?.rol == "ADMIN") { //
+                Routes.ADMIN_DASHBOARD //
+            } else {
+                Routes.PROFILE //
             }
-            viewModel.limpiarExito() // Resetea el estado de éxito
+
+            navController.navigate(destino) { //
+
+                popUpTo(Routes.HOME) { inclusive = true } //
+            }
+            viewModel.limpiarExito()
         }
     }
 
@@ -67,7 +73,7 @@ fun AuthScreen( // Mantenemos el nombre AuthScreen para que Navigation.kt funcio
                         style = MaterialTheme.typography.headlineMedium
                     )
 
-                    // --- Campos de Registro (Aparecen con animación) ---
+                    // --- Campos de Registro
                     AnimatedVisibility(visible = !estado.esModoLogin) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             CampoDeTexto(
@@ -101,7 +107,7 @@ fun AuthScreen( // Mantenemos el nombre AuthScreen para que Navigation.kt funcio
                         error = estado.errores["clave"]
                     )
 
-                    // --- Campos de Registro (Aparecen con animación) ---
+                    // --- Campos de Registro
                     AnimatedVisibility(visible = !estado.esModoLogin) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             CampoDeTextoClave(
@@ -161,7 +167,7 @@ fun AuthScreen( // Mantenemos el nombre AuthScreen para que Navigation.kt funcio
     }
 }
 
-// --- Componentes reusables para los campos de texto ---
+
 
 @Composable
 private fun CampoDeTexto(

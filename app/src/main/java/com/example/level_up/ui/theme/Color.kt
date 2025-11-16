@@ -2,7 +2,6 @@ package com.example.level_up.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Colores definidos en el PDF (Propuesta de Diseño Visual)
 
 // Acentos [cite: 72]
 val NeonGreen = Color(0xFF39FF14)

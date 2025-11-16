@@ -1,10 +1,6 @@
 package com.example.level_up.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,22 +19,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.level_up.local.ProductoEntidad
+import com.example.level_up.Entidades.ProductoEntidad
 import com.example.level_up.ui.obtenerImagenProducto
 import com.example.level_up.viewmodel.ReviewViewModel
-import com.example.level_up.local.ReseniaEntidad
+import com.example.level_up.Entidades.ReseniaEntidad
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaDetalleProducto(
     nav: NavController,
-    productId: Int, // El ID pasado por la navegación
+    productId: Int,
     viewModel: ReviewViewModel = viewModel()
 ) {
     val estado by viewModel.state.collectAsState()
     val producto = estado.product
 
-    // [CARGA DE DATOS] Llama al ViewModel para cargar el producto y las reseñas al iniciar
+    // Llama al ViewModel para cargar el producto y las reseñas al iniciar
     LaunchedEffect(productId) {
         viewModel.loadProductReviews(productId)
     }
@@ -157,7 +153,7 @@ fun TarjetaFormularioResena(viewModel: ReviewViewModel) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("Deja tu Opinión", style = MaterialTheme.typography.titleLarge)
 
-            // Selector de Valoración (Simplificado)
+            // Selector de Valoración
             Text("Tu Valoración: ${String.format("%.1f", rating)} / 5")
             Slider(
                 value = rating,

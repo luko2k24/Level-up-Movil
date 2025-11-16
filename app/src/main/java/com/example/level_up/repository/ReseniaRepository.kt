@@ -1,28 +1,28 @@
 package com.example.level_up.repository
 
 
-import com.example.level_up.api.ReseniaService // <-- ¡AÑADIDO!
-import com.example.level_up.local.ReseniaDao
-import com.example.level_up.local.ReseniaEntidad
+import com.example.level_up.api.ReseniaService
+import com.example.level_up.dao.ReseniaDao
+import com.example.level_up.Entidades.ReseniaEntidad
 import kotlinx.coroutines.flow.Flow
-import retrofit2.Response // <-- ¡AÑADIDO!
+import retrofit2.Response
 
 class ReseniaRepository(
     private val dao: ReseniaDao,
-    private val apiService: ReseniaService // <-- ¡NUEVA DEPENDENCIA!
+    private val apiService: ReseniaService
 ) {
 
     fun obtenerreseniaPorProducto(idProducto: Int): Flow<List<ReseniaEntidad>> =
         dao.obtenerreseniaPorProducto(idProducto)
 
-    // --- NUEVA FUNCIÓN: Envía la reseña al backend y solo guarda si es exitoso ---
+    //  Envía la reseña al backend y solo guarda si es exitoso ---
     suspend fun enviarYGuardarResena(resenia: ReseniaEntidad): Response<ReseniaEntidad> {
         // 1. Llama al microservicio de reseñas (API)
         val response = apiService.crear(resenia)
 
         // 2. Si la respuesta es exitosa (200, 201), guarda localmente
         if (response.isSuccessful && response.body() != null) {
-            dao.AgregarResenia(resenia) // Guardamos la versión local (Room)
+            dao.AgregarResenia(resenia)
         }
 
         // 3. Retorna la respuesta de la API para manejo de errores en el ViewModel

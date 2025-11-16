@@ -4,11 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.level_up.api.ApiClient
-import com.example.level_up.api.StatsUpdateRequest // <<< Importación necesaria
+import com.example.level_up.api.StatsUpdateRequest
 import com.example.level_up.local.BaseDeDatosApp
-import com.example.level_up.local.CarritoEntidad
-import com.example.level_up.local.PedidoEntidad
-import com.example.level_up.local.UsuarioEntidad
+import com.example.level_up.Entidades.CarritoEntidad
+import com.example.level_up.Entidades.PedidoEntidad
+import com.example.level_up.Entidades.UsuarioEntidad
 import com.example.level_up.repository.CarritoRepository
 import com.example.level_up.repository.PedidoRepository
 import com.example.level_up.repository.UsuarioRepository

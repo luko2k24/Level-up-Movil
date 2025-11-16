@@ -1,7 +1,7 @@
 package com.example.level_up.repository
 
-import com.example.level_up.local.PedidoDao
-import com.example.level_up.local.PedidoEntidad
+import com.example.level_up.dao.PedidoDao
+import com.example.level_up.Entidades.PedidoEntidad
 import kotlinx.coroutines.flow.Flow
 
 class PedidoRepository(private val dao: PedidoDao) {

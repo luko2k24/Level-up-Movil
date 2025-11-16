@@ -2,7 +2,6 @@ package com.example.level_up.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -23,10 +22,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.level_up.local.ProductoEntidad
+import com.example.level_up.Entidades.ProductoEntidad
 import com.example.level_up.viewmodel.CatalogoViewModel
 import com.example.level_up.ui.obtenerImagenProducto
 
@@ -98,7 +96,7 @@ fun CatalogScreen(nav: NavController, viewModel: CatalogoViewModel = viewModel()
                     TarjetaProducto(
                         producto = producto,
                         alHacerClick = {
-                            // [CAMBIO CLAVE] Navega a la pantalla de detalle pasando el ID del producto
+                            //  Navega a la pantalla de detalle pasando el ID del producto
                             nav.navigate("product_detail/${producto.id}")
                         },
                         alAgregarAlCarrito = { viewModel.agregarAlCarrito(producto) }

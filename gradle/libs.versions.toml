@@ -15,6 +15,7 @@ ui = "1.9.3"
 uiToolingData = "1.9.3"
 cameraCore = "1.5.1"
 uiAndroid = "1.9.4"
+uiVersion = "1.9.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,7 @@ androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 androidx-compose-ui-tooling-data = { group = "androidx.compose.ui", name = "ui-tooling-data", version.ref = "uiToolingData" }
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
 androidx-compose-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
+ui = { group = "androidx.compose.ui", name = "ui", version.ref = "uiVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,12 @@
-package com.example.level_up.local
+package com.example.level_up.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.example.level_up.Entidades.ProductoEntidad
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -24,7 +30,7 @@ interface ProductoDao {
     @Query("SELECT * FROM Producto WHERE id = :productoId")
     suspend fun obtenerPorId(productoId: Int): ProductoEntidad?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertarTodos(vararg productos: ProductoEntidad)
 
     @Update
@@ -33,7 +39,7 @@ interface ProductoDao {
     @Delete
     suspend fun eliminar(producto: ProductoEntidad)
 
-    // Utilitarias
+
     @Query("SELECT COUNT(*) FROM Producto")
     suspend fun contar(): Int
 

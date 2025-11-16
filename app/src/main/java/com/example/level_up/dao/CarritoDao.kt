@@ -1,6 +1,12 @@
-package com.example.level_up.local
+package com.example.level_up.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.example.level_up.Entidades.CarritoEntidad
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,10 +25,10 @@ interface CarritoDao {
     @Query("SELECT SUM(precio * cantidad) FROM carrito")
     suspend fun obtenerTotalCarrito(): Int?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertar(item: CarritoEntidad)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertarTodos(vararg items: CarritoEntidad)
 
     @Update
@@ -31,7 +37,7 @@ interface CarritoDao {
     @Delete
     suspend fun eliminar(item: CarritoEntidad)
 
-    // Utilitarias
+
     @Query("DELETE FROM carrito WHERE productoId = :productoId")
     suspend fun eliminarPorProductoId(productoId: Int)
 

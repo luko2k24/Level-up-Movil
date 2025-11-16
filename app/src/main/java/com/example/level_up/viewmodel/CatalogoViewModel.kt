@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.level_up.api.ApiClient // <<< Importado para Retrofit
 import com.example.level_up.local.BaseDeDatosApp
-import com.example.level_up.local.CarritoEntidad
-import com.example.level_up.local.ProductoEntidad
+import com.example.level_up.Entidades.CarritoEntidad
+import com.example.level_up.Entidades.ProductoEntidad
 import com.example.level_up.repository.CarritoRepository
 import com.example.level_up.repository.ProductoRepository
 import kotlinx.coroutines.flow.*
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException // <<< Importado para manejo de errores de red
 import kotlin.String
 
-// --- Estado del Catálogo (traducido) ---
+// --- Estado del Catálogo
 data class EstadoCatalogo(
     val textoBusqueda: String = "",
     val categoriaSeleccionada: String = "Todas",
@@ -22,7 +22,7 @@ data class EstadoCatalogo(
     val error: String? = null
 )
 
-// --- ViewModel (traducido) ---
+// --- ViewModel
 class CatalogoViewModel(app: Application) : AndroidViewModel(app) {
     private val db = BaseDeDatosApp.obtener(app)
     private val repoProducto = ProductoRepository(db.ProductoDao())
@@ -31,7 +31,7 @@ class CatalogoViewModel(app: Application) : AndroidViewModel(app) {
     private val _estado = MutableStateFlow(EstadoCatalogo())
     val estado: StateFlow<EstadoCatalogo> = _estado.asStateFlow()
 
-    // --- Flujos de datos (traducidos) ---
+    // --- Flujos de datos
     val categorias = repoProducto.obtenerCategorias().stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -91,7 +91,6 @@ class CatalogoViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    // ELIMINADA: La función 'inicializarProductos' que estaba aquí ya fue removida.
 
     fun actualizarBusqueda(texto: String) {
         _estado.value = _estado.value.copy(textoBusqueda = texto)

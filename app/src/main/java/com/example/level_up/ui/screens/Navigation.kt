@@ -5,8 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavType // <-- NUEVO
-import androidx.navigation.navArgument // <-- NUEVO
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 object Routes {
     const val HOME = "home"

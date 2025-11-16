@@ -5,17 +5,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-// --- SE ELIMINA LA IMPORTACIÓN DE @RequiresPermission ---
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 class ServicioRecursosNativos(private val contexto: Context) {
 
@@ -35,9 +27,6 @@ class ServicioRecursosNativos(private val contexto: Context) {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    // --- ¡CORRECCIÓN! ---
-    // Se elimina la anotación "@RequiresPermission(...)" de aquí abajo,
-    // porque la función YA comprueba el permiso internamente.
     fun obtenerUbicacionActual(enResultado: (String) -> Unit) {
         if (!tienePermisoUbicacion()) {
             enResultado("Permiso de ubicación denegado.")
@@ -45,14 +34,14 @@ class ServicioRecursosNativos(private val contexto: Context) {
         }
 
         try {
-            // Intenta obtener la última ubicación conocida (rápido)
+            // Intenta obtener la última ubicación conocida
             val ubicacion = gestorUbicacion.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 ?: gestorUbicacion.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
             if (ubicacion != null) {
                 enResultado(formatearUbicacion(ubicacion))
             } else {
-                // Si no hay última ubicación, solicita una nueva (lento)
+                // Si no hay última ubicación, solicita una nueva
                 gestorUbicacion.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
                     5000L, // 5 segundos
@@ -75,7 +64,7 @@ class ServicioRecursosNativos(private val contexto: Context) {
     }
 }
 
-// Composable "remember" para usar el servicio fácilmente
+
 @Composable
 fun recordarServicioRecursosNativos(): ServicioRecursosNativos {
     val contexto = LocalContext.current
