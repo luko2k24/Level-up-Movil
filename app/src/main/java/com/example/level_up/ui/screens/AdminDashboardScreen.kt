@@ -8,18 +8,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.level_up.Entidades.ProductoEntidad
-
 import com.example.level_up.viewmodel.AdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,6 +24,10 @@ fun AdminDashboardScreen(nav: NavController, viewModel: AdminViewModel = viewMod
 
     val estado by viewModel.state.collectAsState()
     val productos by viewModel.productos.collectAsState()
+
+    // --- Control del diálogo (crear/editar)
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var productoEditando by remember { mutableStateOf<ProductoEntidad?>(null) }
 
     Scaffold(
         topBar = {
@@ -41,20 +41,23 @@ fun AdminDashboardScreen(nav: NavController, viewModel: AdminViewModel = viewMod
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = MaterialTheme.colorScheme.surface
                     ),
                     navigationIcon = {
-                        IconButton(onClick = { nav.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } } }) {
-                            Icon(Icons.Filled.Home, contentDescription = "Inicio", tint = MaterialTheme.colorScheme.onSurface)
+                        IconButton(onClick = {
+                            nav.navigate(Routes.HOME) {
+                                popUpTo(Routes.HOME) { inclusive = true }
+                            }
+                        }) {
+                            Icon(Icons.Filled.Home, contentDescription = "Inicio")
                         }
                     }
                 )
-                // --- BARRA DE ACCESO RÁPIDO PARA ADMIN
                 FilaAccesoRapidoAdmin(nav)
             }
         }
     ) { padding ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -62,6 +65,7 @@ fun AdminDashboardScreen(nav: NavController, viewModel: AdminViewModel = viewMod
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+
             item {
                 Text(
                     "Gestión de Productos",
@@ -72,44 +76,155 @@ fun AdminDashboardScreen(nav: NavController, viewModel: AdminViewModel = viewMod
                 Spacer(Modifier.height(10.dp))
             }
 
-            // --- BOTÓN AGREGAR
+            // ---------------- BOTÓN CREAR ----------------
             item {
                 Button(
-                    onClick = { /* TODO: Implementar navegación a formulario de AGREGAR */ },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    onClick = {
+                        productoEditando = null
+                        mostrarDialogo = true
+                    },
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {
-                    Text("➕ Agregar Nuevo Producto", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("➕ Agregar Nuevo Producto")
                 }
             }
 
+            // ---- Texto estado ----
             item {
+                if (estado.isLoading)
+                    CircularProgressIndicator()
+
+                if (estado.error != null)
+                    Text(estado.error!!, color = MaterialTheme.colorScheme.error)
+
                 Text(
                     "Productos Existentes (${productos.size})",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 10.dp)
                 )
-
-                // Mostrar estado de carga o error
-                when {
-                    estado.isLoading -> CircularProgressIndicator(modifier = Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally).padding(16.dp))
-                    estado.error != null -> Text(estado.error!!, color = MaterialTheme.colorScheme.error)
-                    productos.isEmpty() -> Text("No hay productos cargados en la base de datos.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
             }
 
-            // --- LISTA DE PRODUCTOS
+            // ---------------- LISTA DE PRODUCTOS ----------------
             items(productos, key = { it.id }) { producto ->
-                TarjetaProductoAdmin(producto = producto)
+                TarjetaProductoAdmin(
+                    producto = producto,
+                    onEditar = {
+                        productoEditando = producto
+                        mostrarDialogo = true
+                    },
+                    onEliminar = {
+                        viewModel.eliminarProducto(producto)
+                    }
+                )
             }
 
             item { Spacer(Modifier.height(40.dp)) }
         }
     }
+
+    // --- DIALOGO CRUD ---
+    if (mostrarDialogo) {
+        DialogoProductoAdmin(
+            producto = productoEditando,
+            onCancelar = { mostrarDialogo = false },
+            onGuardar = { prod ->
+                if (productoEditando == null)
+                    viewModel.crearProducto(prod)
+                else
+                    viewModel.actualizarProducto(prod)
+
+                mostrarDialogo = false
+            }
+        )
+    }
 }
 
-// --- Componente de Acceso Rápido para Admin ---
+// --------------------- TARJETA CON BOTONES CRUD ---------------------
+@Composable
+fun TarjetaProductoAdmin(
+    producto: ProductoEntidad,
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(producto.nombre, fontWeight = FontWeight.Medium)
+                Text("Código: ${producto.codigo}")
+                Text("Precio: $${producto.precio}")
+                Text("Stock: ${producto.stock}")
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onEditar,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) { Text("Editar") }
+
+                Button(
+                    onClick = onEliminar,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("Eliminar") }
+            }
+        }
+    }
+}
+
+// ---------------- DIALOGO PARA CREAR / EDITAR ----------------
+@Composable
+fun DialogoProductoAdmin(
+    producto: ProductoEntidad?,
+    onCancelar: () -> Unit,
+    onGuardar: (ProductoEntidad) -> Unit,
+) {
+    var codigo by remember { mutableStateOf(producto?.codigo ?: "") }
+    var nombre by remember { mutableStateOf(producto?.nombre ?: "") }
+    var categoria by remember { mutableStateOf(producto?.categoria ?: "") }
+    var precio by remember { mutableStateOf(producto?.precio?.toString() ?: "") }
+    var stock by remember { mutableStateOf(producto?.stock?.toString() ?: "") }
+
+    AlertDialog(
+        onDismissRequest = onCancelar,
+        confirmButton = {
+            Button(onClick = {
+                onGuardar(
+                    ProductoEntidad(
+                        id = producto?.id ?: 0,
+                        codigo = codigo,
+                        nombre = nombre,
+                        categoria = categoria,
+                        precio = precio.toIntOrNull() ?: 0,
+                        stock = stock.toIntOrNull() ?: 0
+                    )
+                )
+            }) { Text("Guardar") }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onCancelar) {
+                Text("Cancelar")
+            }
+        },
+        title = { Text(if (producto == null) "Nuevo Producto" else "Editar Producto") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = codigo, onValueChange = { codigo = it }, label = { Text("Código") })
+                OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
+                OutlinedTextField(value = categoria, onValueChange = { categoria = it }, label = { Text("Categoría") })
+                OutlinedTextField(value = precio, onValueChange = { precio = it }, label = { Text("Precio") })
+                OutlinedTextField(value = stock, onValueChange = { stock = it }, label = { Text("Stock") })
+            }
+        }
+    )
+}
+
+// ---- ACCESO RÁPIDO ----
 @Composable
 private fun FilaAccesoRapidoAdmin(nav: NavController) {
     Row(
@@ -119,59 +234,8 @@ private fun FilaAccesoRapidoAdmin(nav: NavController) {
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        AccionChip(nav, Routes.CATALOG, "Catálogo", Icons.Default.ShoppingBag)
-        AccionChip(nav, Routes.CART, "Carrito", Icons.Default.ShoppingCart)
-        AccionChip(nav, Routes.PROFILE, "Mi Perfil", Icons.Default.Person)
-    }
-}
-
-@Composable
-private fun AccionChip(nav: NavController, route: String, label: String, icon: ImageVector) {
-    AssistChip(
-        onClick = { nav.navigate(route) },
-        label = { Text(label) },
-        leadingIcon = { Icon(icon, contentDescription = null) },
-        colors = AssistChipDefaults.assistChipColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            labelColor = MaterialTheme.colorScheme.onSurface
-        )
-    )
-}
-
-// --- Componente de Tarjeta para la Lista de Productos ---
-@Composable
-private fun TarjetaProductoAdmin(producto: ProductoEntidad) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(producto.nombre, fontWeight = FontWeight.Medium, maxLines = 1)
-                Text("ID: ${producto.id} | Código: ${producto.codigo}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Stock: ${producto.stock} | Precio: $${producto.precio}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-            }
-            Spacer(Modifier.width(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Botón Editar (Electric Blue)
-                Button(
-                    onClick = { /* TODO: Lógica de UPDATE */ },
-                    contentPadding = PaddingValues(horizontal = 12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                ) { Text("Editar") }
-                // Botón Eliminar (Rojo/Error)
-                Button(
-                    onClick = { /* TODO: Lógica de DELETE */ },
-                    contentPadding = PaddingValues(horizontal = 12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Eliminar") }
-            }
-        }
+        AssistChip(onClick = { nav.navigate(Routes.CATALOG) }, label = { Text("Catálogo") }, leadingIcon = { Icon(Icons.Default.ShoppingBag, null) })
+        AssistChip(onClick = { nav.navigate(Routes.CART) }, label = { Text("Carrito") }, leadingIcon = { Icon(Icons.Default.ShoppingCart, null) })
+        AssistChip(onClick = { nav.navigate(Routes.PROFILE) }, label = { Text("Mi Perfil") }, leadingIcon = { Icon(Icons.Default.Person, null) })
     }
 }
