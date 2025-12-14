@@ -1,56 +1,83 @@
-#  LEVEL-UP GAMER — Aplicación Móvil 
+# 🎮 LEVEL-UP GAMER — Aplicación Móvil Android
 
-## Descripción del Proyecto
-**Level-Up Gamer** es una aplicación móvil desarrollada en **Android Studio con Kotlin y Jetpack Compose**, creada como parte de la **Evaluación Parcial 2** de la asignatura **DSY1105 – Desarrollo de Aplicaciones Móviles** 
+## 📌 Nombre de la aplicación
+**Level-Up Gamer**
 
-El objetivo del proyecto es ofrecer una experiencia fluida para los usuarios que desean explorar, comprar y calificar productos gamer desde su dispositivo móvil. La app aplica principios de **usabilidad, diseño visual, persistencia local y validaciones desacopladas**
+---
 
-
-
-## Integrantes del equipo
-- **Lukas Meza **  
+## 👥 Integrantes del equipo
+- **Lukas Martín Meza Cofré**  
 - **Christian Sandoval**
 
+**Asignatura:** DSY1105 – Desarrollo de Aplicaciones Móviles  
 **Sección:** 002D  
 **Profesor:** Bryan Vicente Soto Astudillo  
 
+---
 
-## Funcionalidades implementadas
+## 📝 Descripción del proyecto
+**Level-Up Gamer** es una aplicación móvil desarrollada para **Android**, utilizando **Kotlin** y **Jetpack Compose** en **Android Studio**, como parte de la **Evaluación Parcial 2** de la asignatura DSY1105.
 
-### Interfaz y navegación
-- Diseño visual coherente con la estética gamer (colores oscuros y acentos neón).  
-- Navegación fluida entre pantallas mediante `NavController`.  
-- Componentes visuales jerárquicos (`Card`, `LazyRow`, `OutlinedTextField`, `Scaffold`).  
+La aplicación permite a los usuarios **explorar productos gamer, registrarse, iniciar sesión y dejar reseñas**, aplicando principios de **arquitectura MVVM, validaciones desacopladas, persistencia local y diseño centrado en el usuario**.
 
-### Formularios y validaciones
-- Formulario de **registro e inicio de sesión** con validaciones visuales por campo.  
-- Retroalimentación clara mediante íconos y mensajes visuales.  
-- Validación de campos gestionada en un archivo lógico independiente (`Validacion.kt`).  
+---
 
-###  Lógica desacoplada y gestión de estado
-- Arquitectura **MVVM** (Model–ViewModel–View).  
-- Lógica centralizada en `ViewModelAutenticacion` y `ReviewViewModel`.  
-- Flujo de datos mediante **StateFlow** y **coroutines**.  
+## ⚙️ Funcionalidades implementadas
 
-###  Persistencia local
-- Implementación de **Room Database** para almacenar usuarios, productos y reseñas.  
-- Repositorios (`UsuarioRepository`, `ProductoRepository`, `ReseniaRepository`) para comunicación entre capas.  
+### 📱 Interfaz y navegación
+- Interfaz visual con estética gamer (colores oscuros y acentos neón).
+- Navegación entre pantallas usando **NavController**.
+- Uso de componentes de Jetpack Compose como:
+  - `Scaffold`
+  - `Card`
+  - `LazyRow`
+  - `OutlinedTextField`
 
-### Animaciones
-- Uso de `AnimatedVisibility`, `slideInHorizontally`, `fadeIn` y `spring()` para transiciones suaves y efectos visuales en formularios y vistas.  
+### 🧾 Formularios y validaciones
+- Registro e inicio de sesión de usuarios.
+- Validaciones por campo con retroalimentación visual.
+- Lógica de validación desacoplada en archivo independiente (`Validacion.kt`).
 
-### Recursos nativos (en progreso)
-- Preparado para integrar acceso a cámara o galería para imágenes de perfil o productos.  
-- Implementación futura de **vibración al confirmar compras**.
+### 🧠 Arquitectura y lógica
+- Implementación de arquitectura **MVVM**.
+- Uso de `ViewModelAutenticacion` y `ReviewViewModel`.
+- Manejo de estado con **StateFlow** y **Kotlin Coroutines**.
 
-### Herramientas colaborativas
-- Repositorio alojado en **GitHub** 
-- Planificación y seguimiento de tareas en **Trello**   
+### 💾 Persistencia local
+- Base de datos local implementada con **Room**.
+- Entidades para usuarios, productos y reseñas.
+- Repositorios:
+  - `UsuarioRepository`
+  - `ProductoRepository`
+  - `ReseniaRepository`
 
+### 🎞️ Animaciones
+- Animaciones con:
+  - `AnimatedVisibility`
+  - `slideInHorizontally`
+  - `fadeIn`
+  - `spring()`
+- Transiciones suaves entre vistas y formularios.
 
-## Pasos para ejecutar el proyecto
+### 📲 Recursos nativos (en progreso)
+- Estructura preparada para uso de cámara o galería.
+- Planificación de vibración al confirmar compras.
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone https://github.com/tuusuario/LevelUpMobile.git
-2. Descargar el zip desde el Github
+---
+
+## 🌐 Endpoints utilizados
+
+### 🔹 Endpoints propios
+- Autenticación de usuarios (persistencia local con Room).
+- Gestión de productos y reseñas.
+
+### 🔹 Endpoints externos
+- No se utilizan endpoints externos actualmente.
+
+---
+
+## ▶️ Instrucciones para ejecutar el proyecto
+
+### Opción 1: Clonar repositorio
+```bash
+git clone https://github.com/tuusuario/LevelUpMobile.git
